@@ -94,6 +94,7 @@ class Gallery {
         this.setStylePosition()
 
         //change active slide
+        
         if(
             dragShift > 20 &&
             dragShift > 0 && 
