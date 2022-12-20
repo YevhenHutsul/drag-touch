@@ -1,6 +1,7 @@
 .gallery{
     width: 100%;
     overflow: hidden;
+    user-select: none;
 }
 .gallery-line{
     overflow: hidden;
