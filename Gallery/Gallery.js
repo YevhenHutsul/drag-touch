@@ -7,7 +7,10 @@ class Gallery {
         this.containerNode = element;
         this.size = element.childElementCount;
         this.currentSlide = 0;
-        this.currentSlideWasChanged = false
+        this.currentSlideWasChanged = false;
+        this.setting = {
+            margin: options.margin || 0,
+        }
 
         this.manageHTML = this.manageHTML.bind(this);
         this.setParameters = this.setParameters.bind(this);
@@ -51,12 +54,14 @@ class Gallery {
     setParameters(){
         const coordsContiner = this.containerNode.getBoundingClientRect();
         this.width = coordsContiner.width;
-        this.lineNode.style.width = `${this.size * this.width}px`;
-        this.maximumX = -(this.size - 1) * this.width
-        this.x = -this.currentSlide * this.width;
-
+        this.lineNode.style.width = `${this.size * (this.width + this.setting.margin)}px`;
+        this.maximumX = -(this.size - 1) * (this.width + this.setting.margin);
+        this.x = -this.currentSlide * (this.width + this.setting.margin);
+        this.resetStyleTransition();
+        this.setStylePosition();
         Array.from(this.slideNode).forEach(node => {
-            node.style.width = `${this.width}px`
+            node.style.width = `${this.width}px`;
+            node.style.marginRight = `${this.setting.margin}px`;
         })
         
     }
@@ -70,7 +75,8 @@ class Gallery {
 
     destrouEvents(){
         window.removeEventListener('resize', this.debounceResizeGallery);
-        window.removeEventListener('pointerup', this.stopDrag)
+        window.removeEventListener('pointerup', this.stopDrag);
+        this.lineNode.removeEventListener('pointerdown', this.startDrag)
     }
 
     resizeGallery(){
@@ -88,7 +94,7 @@ class Gallery {
     stopDrag(){
         this.setStyleTransition();
         window.removeEventListener('pointermove', this.dragging);
-        this.x = -this.currentSlide * this.width;
+        this.x = -this.currentSlide * (this.width + this.setting.margin);
         this.setStylePosition()
     }
 
@@ -96,7 +102,6 @@ class Gallery {
         this.dragX = event.pageX;
         const dragShift = this.dragX - this.clickX;
         const easing = dragShift / 5;
-        console.log(this.clickX + dragShift)
         this.x = Math.max(Math.min(this.startX + dragShift,easing), this.maximumX + easing);
         this.setStylePosition()
 
