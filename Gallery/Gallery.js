@@ -52,6 +52,7 @@ class Gallery {
         const coordsContiner = this.containerNode.getBoundingClientRect();
         this.width = coordsContiner.width;
         this.lineNode.style.width = `${this.size * this.width}px`;
+        this.maximumX = -(this.size - 1) * this.width
         this.x = -this.currentSlide * this.width;
 
         Array.from(this.slideNode).forEach(node => {
@@ -77,6 +78,7 @@ class Gallery {
     }
 
     startDrag(event){
+        this.resetStyleTransition();
         this.currentSlideWasChanged = false;
         this.clickX = event.pageX;
         this.startX = this.x;
@@ -84,13 +86,18 @@ class Gallery {
     }
 
     stopDrag(){
+        this.setStyleTransition();
         window.removeEventListener('pointermove', this.dragging);
+        this.x = -this.currentSlide * this.width;
+        this.setStylePosition()
     }
 
     dragging(event){
         this.dragX = event.pageX;
         const dragShift = this.dragX - this.clickX;
-        this.x = this.startX + dragShift;
+        const easing = dragShift / 5;
+        console.log(this.clickX + dragShift)
+        this.x = Math.max(Math.min(this.startX + dragShift,easing), this.maximumX + easing);
         this.setStylePosition()
 
         //change active slide
@@ -102,22 +109,31 @@ class Gallery {
             this.currentSlide > 0
         ){
             this.currentSlideWasChanged = true;
-            console.log("двигаю вправо")
+            this.currentSlide = this.currentSlide - 1;
         }
 
         if(
             dragShift < -20 &&
-            dragShift > 0 && 
+            dragShift < 0 && 
             !this.currentSlideWasChanged &&
             this.currentSlide < this.size - 1
         ){
             this.currentSlideWasChanged = true;
-            console.log("двигаю вправо")
+            this.currentSlide = this.currentSlide + 1;
+
         }
     }
 
     setStylePosition(){
         this.lineNode.style.transform = `translate3d(${this.x}px, 0px, 0px)`
+    }
+
+    setStyleTransition(){
+        this.lineNode.style.transition = `all 0.25s ease 0s`
+    }
+
+    resetStyleTransition(){
+        this.lineNode.style.transition = `all 0s ease 0s`
     }
 }
 
